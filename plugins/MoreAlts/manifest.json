@@ -1,0 +1,7 @@
+{
+	"name": "MoreAlts — by Cordinsanity",
+	"description": "Secure account switcher with AES-256 token encryption, PIN lock, biometric auth, Nitro status and more.",
+	"authors": [{ "name": "Cordinsanity", "id": "793935599702507542" }],
+	"main": "./index.js",
+	"vendetta": { "icon": "ic_full_server_gating_24px" }
+}
