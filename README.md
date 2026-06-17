@@ -1,28 +1,17 @@
 # Cordinsanity — Revenge Plugins
 
-> Privacy-focused plugins for [Revenge](https://github.com/revenge-mod) / Vendetta (Discord mod)
-
----
-
-## Why these plugins?
-
-Most Discord mods and plugins store tokens in plain text, log everything and have zero security features. This is different.
-
-Every plugin here is built from the ground up with a **privacy and security focus**:
-- Tokens are **encrypted** at rest (AES-256-GCM)
-- No plain text in storage or logs
-- Network monitoring instead of blind trust
-- Fully configurable — you decide what's active
+Privacy-focused plugins for [Revenge](https://github.com/revenge-mod) / Vendetta on Discord.  
+Built with security at the core — encrypted storage, network monitoring and full control over your data.
 
 ---
 
 ## Plugins
 
-| Plugin | Description | Install |
-|--------|-------------|---------|
-| [MoreAlts](plugins/MoreAlts/README.md) | Secure account switcher with AES-256 token encryption, PIN lock, biometrics & more | [Link](https://cordinsanity.github.io/revenge-plugins/MoreAlts/index.js) |
-| [GhostMode](plugins/GhostMode/README.md) | Go invisible, block typing indicators & read receipts — toggle right in the You Bar | [Link](https://cordinsanity.github.io/revenge-plugins/GhostMode/index.js) |
-| [TokenGuard](plugins/TokenGuard/README.md) | Monitors all network requests and alerts when a plugin sends your token to an unknown URL | [Link](https://cordinsanity.github.io/revenge-plugins/TokenGuard/index.js) |
+| Plugin | Description | Install URL |
+|--------|-------------|-------------|
+| [MoreAlts](plugins/MoreAlts/README.md) | Secure multi-account switcher with AES-256 token encryption, PIN lock, biometrics & more | `https://cordinsanity.github.io/revenge-plugins/MoreAlts/` |
+| [GhostMode](plugins/GhostMode/README.md) | Go invisible & block typing indicators — toggle right in the You Bar | `https://cordinsanity.github.io/revenge-plugins/GhostMode/` |
+| [TokenGuard](plugins/TokenGuard/README.md) | Monitors network requests and alerts when your token is sent to an unknown URL | `https://cordinsanity.github.io/revenge-plugins/TokenGuard/` |
 
 ---
 
@@ -30,7 +19,7 @@ Every plugin here is built from the ground up with a **privacy and security focu
 
 1. Open **Revenge** on Discord
 2. Go to **Settings → Plugins → +**
-3. Paste the plugin URL (see table above)
+3. Paste the install URL from the table above
 
 ---
 
@@ -38,4 +27,4 @@ Every plugin here is built from the ground up with a **privacy and security focu
 
 **Cordinsanity** — [github.com/cordinsanity](https://github.com/cordinsanity)
 
-> ⚠️ These plugins are for Revenge/Vendetta. Account switching and mods violate Discord's ToS — use at your own risk.
+> ⚠️ Mods violate Discord's ToS. Use at your own risk.

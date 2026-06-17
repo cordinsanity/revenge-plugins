@@ -1,59 +1,46 @@
 # TokenGuard — by Cordinsanity
 
-> Monitors all network requests and alerts when a plugin sends your Discord token to an unknown URL
+Monitors all network requests and alerts you when your Discord token is sent to an unknown URL.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/TokenGuard/index.js
+https://cordinsanity.github.io/revenge-plugins/TokenGuard/
 ```
 
 ---
 
-## What does this plugin do?
+## Why does this matter?
 
-Revenge/Vendetta plugins have full access to `fetch` — meaning any installed plugin can theoretically send your Discord token to an external URL without you ever noticing.
-
-TokenGuard patches `globalThis.fetch` and checks **every single network request** made from within Discord. If your token (`Authorization` header) is being sent to a domain that doesn't belong to Discord, you get an immediate warning.
+Every Revenge/Vendetta plugin has full access to `fetch` — which means any plugin could theoretically send your Discord token to an external server. TokenGuard makes that visible and lets you stop it.
 
 ---
 
 ## Features
 
 ### Real-Time Monitoring
-- Monitors **all** `fetch` requests in the background
-- Checks whether the `Authorization` header (= your token) is included
-- Distinguishes between Discord's own requests (OK) and external URLs (🚨 Suspicious)
-- **Toast notification** on suspicious requests
+- Intercepts every `fetch` request made from within Discord
+- Checks whether your token (`Authorization` header) is included
+- Instantly distinguishes Discord's own requests from external ones
+- **Toast alert** the moment something suspicious is detected
 
 ### Request Log
-- Full log of all requests containing your token inside the settings page
-- 🔴 Red = suspicious (external domain), 🟢 Green = ok (Discord)
-- Shows: domain, method, URL preview, timestamp
-- Up to 200 entries, oldest are removed automatically
-- Log can be cleared with one button
+- Full request history inside the settings page
+- 🔴 Red = suspicious &nbsp;|&nbsp; 🟢 Green = Discord — safe
+- Shows domain, method, URL preview and timestamp
+- Stores up to 200 entries, clears automatically when full
+- One-tap log wipe
 
 ### Protection Options
-- **Auto-block suspicious requests** — blocks them before they go out
-- **Log suspicious only** — saves storage, Discord requests are ignored
+- **Auto-block** suspicious requests before they leave your device
+- **Log suspicious only** — ignores Discord traffic to save space
 
 ### Whitelist
-- Default whitelist covers all Discord domains
-- Add your own domains (e.g. self-hosted bots)
-- Whitelisted domains are never flagged as suspicious
+- All Discord domains are whitelisted by default
+- Add your own trusted domains (e.g. self-hosted bots)
+- Whitelisted domains are never flagged
 
 ### Status Banner
-- At a glance: how many suspicious requests were detected
-- 🛡️ Green = all clear / 🚨 Red = action recommended
-
----
-
-## Why does this matter?
-
-A malicious or compromised plugin could:
-- Send your token to an attacker's server
-- Steal your account data silently
-- Make background requests without your knowledge
-
-TokenGuard makes this visible — and can optionally block it entirely.
+- At a glance view of how many suspicious requests were caught
+- 🛡️ All clear &nbsp;/&nbsp; 🚨 Action recommended
 
 ---
 
