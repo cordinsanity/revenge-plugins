@@ -77,14 +77,61 @@ const TARGET_DOMAINS = [
   { key: "media.discordapp.net", label: "media.discordapp.net", sub: "Media files" },
 ];
 
-export default function ProxifierSettings({ storage, testProxy, checkIpLeak, saveProfile, loadProfile, deleteProfile }) {
+const SNI_MODES = [
+  {
+    key: "doh",
+    label: "DNS-over-HTTPS",
+    desc: "Resolves Discord IPs via encrypted DNS. Bypasses DNS-level blocking (most common in Russia/China).",
+    emoji: "🔒",
+  },
+  {
+    key: "ip",
+    label: "Direct IP connection",
+    desc: "Connects to Discord's IP directly. TLS SNI becomes an IP address, not a domain — bypasses DPI inspection.",
+    emoji: "🌐",
+  },
+  {
+    key: "fakesni",
+    label: "Fake SNI (Proxy-level)",
+    desc: "Sends X-SNI-Host header with a fake domain. Requires a compatible proxy (xray/v2ray/nginx with SNI routing).",
+    emoji: "🎭",
+  },
+  {
+    key: "front",
+    label: "Domain Fronting",
+    desc: "TLS SNI = an unblocked CDN domain. HTTP Host = Discord. Works if both share a CDN (Cloudflare etc.).",
+    emoji: "🎯",
+  },
+];
+
+const DOH_SERVERS = [
+  { label: "Cloudflare (1.1.1.1)",     value: "https://cloudflare-dns.com/dns-query" },
+  { label: "Google (8.8.8.8)",          value: "https://dns.google/resolve" },
+  { label: "Mullvad",                   value: "https://base.dns.mullvad.net/dns-query" },
+  { label: "NextDNS",                   value: "https://dns.nextdns.io/dns-query" },
+  { label: "AdGuard",                   value: "https://dns.adguard.com/dns-query" },
+  { label: "Custom",                    value: "__custom__" },
+];
+
+export default function ProxifierSettings({ storage, testProxy, testDoH, checkIpLeak, saveProfile, loadProfile, deleteProfile }) {
   const s = useProxy(storage);
   const [testing, setTesting] = React.useState(false);
   const [testResult, setTestResult] = React.useState(null);
+  const [dohTesting, setDohTesting] = React.useState(false);
+  const [dohResult, setDohResult] = React.useState(null);
   const [ipChecking, setIpChecking] = React.useState(false);
   const [ipResult, setIpResult] = React.useState(null);
   const [profileName, setProfileName] = React.useState("");
   const [showProfiles, setShowProfiles] = React.useState(false);
+
+  if (!s.sniBypass) s.sniBypass = { enabled: false, mode: "doh", dohServer: "https://cloudflare-dns.com/dns-query", fakeSni: "", frontDomain: "" };
+
+  const handleDohTest = async () => {
+    setDohTesting(true); setDohResult(null);
+    const r = await testDoH?.();
+    setDohResult(r);
+    setDohTesting(false);
+  };
 
   const isCustomUrl = !PROXY_PRESETS.some(p => p.value === s.proxyUrl && p.value !== "__custom__");
 
@@ -300,6 +347,158 @@ export default function ProxifierSettings({ storage, testProxy, checkIpLeak, sav
           )
         )
       )
+    ),
+
+    // ── SNI Bypass ──
+    React.createElement(Text, { style: [SECTION, { color: "#F04747" }] }, "🛡 SNI Bypass — Censorship Circumvention"),
+
+    React.createElement(View, {
+      style: {
+        marginHorizontal: 12, marginBottom: 8, padding: 12, borderRadius: 10,
+        backgroundColor: "rgba(240,71,71,0.07)", borderWidth: 1, borderColor: "rgba(240,71,71,0.3)",
+      }
+    },
+      React.createElement(Text, { style: { color: "#F04747", fontWeight: "700", fontSize: 13, marginBottom: 4 } }, "For users in Russia, Iran, China and similar"),
+      React.createElement(Text, { style: { color: C.gray, fontSize: 12, lineHeight: 18 } },
+        "Discord is blocked in some countries via DNS poisoning or DPI (Deep Packet Inspection). " +
+        "SNI Bypass routes around these blocks without needing a full proxy."
+      )
+    ),
+
+    React.createElement(View, { style: CARD },
+      React.createElement(Toggle, {
+        label: "Enable SNI Bypass",
+        sub: "Active even when no proxy is configured",
+        value: s.sniBypass?.enabled,
+        onToggle: v => { s.sniBypass = { ...s.sniBypass, enabled: v }; },
+        accent: "#F04747",
+      }),
+    ),
+
+    s.sniBypass?.enabled && React.createElement(View, null,
+
+      React.createElement(Text, { style: SECTION }, "Bypass mode"),
+      React.createElement(View, { style: CARD },
+        SNI_MODES.map(mode =>
+          React.createElement(TouchableOpacity, {
+            key: mode.key,
+            onPress: () => { s.sniBypass = { ...s.sniBypass, mode: mode.key }; },
+            style: {
+              paddingVertical: 13, paddingHorizontal: 16,
+              borderBottomWidth: 0.5, borderBottomColor: C.border,
+              backgroundColor: s.sniBypass?.mode === mode.key ? "rgba(240,71,71,0.1)" : "transparent",
+            }
+          },
+            React.createElement(View, { style: { flexDirection: "row", alignItems: "center" } },
+              React.createElement(Text, { style: { fontSize: 20, marginRight: 10 } }, mode.emoji),
+              React.createElement(Text, { style: { color: C.white, fontWeight: "700", flex: 1 } }, mode.label),
+              s.sniBypass?.mode === mode.key && React.createElement(Text, { style: { color: "#F04747" } }, "✓")
+            ),
+            React.createElement(Text, { style: { color: C.gray, fontSize: 11, marginTop: 3, marginLeft: 30, lineHeight: 16 } }, mode.desc)
+          )
+        )
+      ),
+
+      // DoH server picker (shown for doh + ip + front modes — all use DoH for resolution)
+      s.sniBypass?.mode !== "fakesni" && React.createElement(View, null,
+        React.createElement(Text, { style: SECTION }, "DNS-over-HTTPS server"),
+        React.createElement(View, { style: CARD },
+          DOH_SERVERS.map(srv =>
+            React.createElement(TouchableOpacity, {
+              key: srv.value,
+              onPress: () => { if (srv.value !== "__custom__") s.sniBypass = { ...s.sniBypass, dohServer: srv.value }; },
+              style: {
+                paddingVertical: 11, paddingHorizontal: 16, flexDirection: "row", alignItems: "center",
+                borderBottomWidth: 0.5, borderBottomColor: C.border,
+                backgroundColor: (srv.value === s.sniBypass?.dohServer || (srv.value === "__custom__" && !DOH_SERVERS.find(x => x.value === s.sniBypass?.dohServer && x.value !== "__custom__")))
+                  ? "rgba(114,137,218,0.12)" : "transparent",
+              }
+            },
+              React.createElement(Text, { style: { color: C.white, flex: 1 } }, srv.label),
+              (srv.value === s.sniBypass?.dohServer) && React.createElement(Text, { style: { color: C.blue } }, "✓")
+            )
+          )
+        ),
+        React.createElement(View, { style: { marginHorizontal: 12, marginBottom: 8 } },
+          React.createElement(Text, { style: { color: C.gray, fontSize: 12, marginBottom: 6 } }, "Custom DoH URL:"),
+          React.createElement(TextInput, {
+            value: s.sniBypass?.dohServer || "",
+            onChangeText: v => { s.sniBypass = { ...s.sniBypass, dohServer: v }; },
+            placeholder: "https://your-doh-server.com/dns-query",
+            placeholderTextColor: C.dim,
+            autoCapitalize: "none", keyboardType: "url",
+            style: { backgroundColor: C.card, color: C.white, padding: 11, borderRadius: 8, fontSize: 13 }
+          })
+        ),
+        React.createElement(Btn, {
+          label: dohTesting ? "Testing DoH…" : "🔒 Test DoH Resolution",
+          onPress: handleDohTest,
+          disabled: dohTesting,
+          color: "#7289DA",
+        }),
+        dohResult && React.createElement(View, {
+          style: {
+            marginHorizontal: 12, marginBottom: 8, padding: 12, borderRadius: 10,
+            backgroundColor: dohResult.ok ? "rgba(67,181,129,0.1)" : "rgba(240,71,71,0.1)",
+            borderWidth: 1, borderColor: dohResult.ok ? C.green : C.red,
+          }
+        },
+          React.createElement(Text, { style: { color: dohResult.ok ? C.green : C.red, fontWeight: "700" } },
+            dohResult.ok ? `✓ DoH working — discord.com → ${dohResult.ip}` : "✗ DoH failed"
+          ),
+          dohResult.ping && React.createElement(Text, { style: { color: C.gray, fontSize: 12, marginTop: 2 } }, `Response time: ${dohResult.ping}ms`),
+          dohResult.error && React.createElement(Text, { style: { color: C.gray, fontSize: 12, marginTop: 2 } }, dohResult.error)
+        )
+      ),
+
+      // Fake SNI input (only for fakesni mode)
+      s.sniBypass?.mode === "fakesni" && React.createElement(View, { style: { marginHorizontal: 12, marginBottom: 8 } },
+        React.createElement(Text, { style: { color: C.gray, fontSize: 12, marginBottom: 6 } }, "Fake SNI domain (must be accessible and on same CDN):"),
+        React.createElement(TextInput, {
+          value: s.sniBypass?.fakeSni || "",
+          onChangeText: v => { s.sniBypass = { ...s.sniBypass, fakeSni: v }; },
+          placeholder: "www.microsoft.com",
+          placeholderTextColor: C.dim,
+          autoCapitalize: "none", keyboardType: "url",
+          style: { backgroundColor: C.card, color: C.white, padding: 11, borderRadius: 8, fontSize: 13 }
+        }),
+        React.createElement(Text, { style: { color: C.dim, fontSize: 11, marginTop: 6, lineHeight: 16 } },
+          "Use a domain that is NOT blocked in your country and ideally shares Cloudflare/CDN infrastructure with Discord."
+        )
+      ),
+
+      // Front domain input (only for front mode)
+      s.sniBypass?.mode === "front" && React.createElement(View, { style: { marginHorizontal: 12, marginBottom: 8 } },
+        React.createElement(Text, { style: { color: C.gray, fontSize: 12, marginBottom: 6 } }, "Front domain (unblocked CDN domain):"),
+        React.createElement(TextInput, {
+          value: s.sniBypass?.frontDomain || "",
+          onChangeText: v => { s.sniBypass = { ...s.sniBypass, frontDomain: v }; },
+          placeholder: "www.cloudflare.com",
+          placeholderTextColor: C.dim,
+          autoCapitalize: "none", keyboardType: "url",
+          style: { backgroundColor: C.card, color: C.white, padding: 11, borderRadius: 8, fontSize: 13 }
+        }),
+        React.createElement(Text, { style: { color: C.dim, fontSize: 11, marginTop: 6, lineHeight: 16 } },
+          "A domain on the same CDN as Discord (Cloudflare). TLS handshake uses this domain as SNI — Discord's API is reached via the HTTP Host header."
+        )
+      ),
+
+      // Quick guide box
+      React.createElement(View, {
+        style: {
+          marginHorizontal: 12, marginBottom: 8, padding: 12, borderRadius: 10,
+          backgroundColor: "rgba(114,137,218,0.07)", borderWidth: 1, borderColor: "rgba(114,137,218,0.2)",
+        }
+      },
+        React.createElement(Text, { style: { color: C.blue, fontWeight: "700", fontSize: 12, marginBottom: 6 } }, "Which mode should I use?"),
+        React.createElement(Text, { style: { color: C.gray, fontSize: 11, lineHeight: 17 } },
+          "🔒 DNS blocked only (most common) → use DoH mode\n" +
+          "🌐 DPI/SNI inspection → use Direct IP mode\n" +
+          "🎭 Have xray/v2ray proxy → use Fake SNI mode\n" +
+          "🎯 Advanced / CDN sharing → use Domain Fronting\n\n" +
+          "Combine SNI Bypass with a proxy for maximum bypass."
+        )
+      ),
     ),
 
     // ── Test ──
