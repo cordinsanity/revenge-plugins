@@ -1,6 +1,6 @@
 # TokenGuard — by Cordinsanity
 
-> Überwacht alle Netzwerk-Anfragen und warnt wenn ein Plugin deinen Discord-Token weitersendet
+> Monitors all network requests and alerts when a plugin sends your Discord token to an unknown URL
 
 ```
 https://cordinsanity.github.io/revenge-plugins/TokenGuard/index.js
@@ -8,53 +8,53 @@ https://cordinsanity.github.io/revenge-plugins/TokenGuard/index.js
 
 ---
 
-## Was macht das Plugin?
+## What does this plugin do?
 
-Revenge/Vendetta-Plugins haben vollen Zugriff auf `fetch` — das bedeutet jedes installierte Plugin kann theoretisch deinen Discord-Token an eine externe URL schicken, ohne dass du es merkst.
+Revenge/Vendetta plugins have full access to `fetch` — meaning any installed plugin can theoretically send your Discord token to an external URL without you ever noticing.
 
-TokenGuard patcht `globalThis.fetch` und prüft **jede einzelne Netzwerk-Anfrage** die aus Discord heraus gemacht wird. Wenn dabei dein Token (`Authorization`-Header) an eine Domain gesendet wird die nicht zu Discord gehört, bekommst du sofort eine Warnung.
+TokenGuard patches `globalThis.fetch` and checks **every single network request** made from within Discord. If your token (`Authorization` header) is being sent to a domain that doesn't belong to Discord, you get an immediate warning.
 
 ---
 
 ## Features
 
-### Echtzeit-Monitoring
-- Überwacht **alle** `fetch`-Anfragen im Hintergrund
-- Prüft ob der `Authorization`-Header (= dein Token) mitgeschickt wird
-- Unterscheidet zwischen Discord-eigenen Anfragen (OK) und fremden URLs (🚨 Verdächtig)
-- **Toast-Benachrichtigung** bei verdächtigen Anfragen
+### Real-Time Monitoring
+- Monitors **all** `fetch` requests in the background
+- Checks whether the `Authorization` header (= your token) is included
+- Distinguishes between Discord's own requests (OK) and external URLs (🚨 Suspicious)
+- **Toast notification** on suspicious requests
 
-### Request-Log
-- Vollständiger Log aller Anfragen mit Token in den Settings
-- 🔴 Rot = verdächtig (fremde Domain), 🟢 Grün = ok (Discord)
-- Zeigt: Domain, Methode, URL-Vorschau, Uhrzeit
-- Bis zu 200 Einträge, älteste werden automatisch gelöscht
-- Log lässt sich per Knopfdruck löschen
+### Request Log
+- Full log of all requests containing your token inside the settings page
+- 🔴 Red = suspicious (external domain), 🟢 Green = ok (Discord)
+- Shows: domain, method, URL preview, timestamp
+- Up to 200 entries, oldest are removed automatically
+- Log can be cleared with one button
 
-### Schutz-Optionen
-- **Anfragen automatisch blockieren** — verdächtige Anfragen werden blockiert bevor sie rausgehen
-- **Nur verdächtige loggen** — spart Speicher, Discord-Anfragen werden ignoriert
+### Protection Options
+- **Auto-block suspicious requests** — blocks them before they go out
+- **Log suspicious only** — saves storage, Discord requests are ignored
 
 ### Whitelist
-- Standard-Whitelist: alle Discord-Domains
-- Eigene Domains hinzufügbar (z.B. für selbstgehostete Bots)
-- Domains aus der Whitelist werden nie als verdächtig markiert
+- Default whitelist covers all Discord domains
+- Add your own domains (e.g. self-hosted bots)
+- Whitelisted domains are never flagged as suspicious
 
-### Status-Banner
-- Zeigt auf einen Blick: wie viele verdächtige Anfragen erkannt wurden
-- 🛡️ Grün = alles ok / 🚨 Rot = Aktion empfohlen
-
----
-
-## Warum ist das wichtig?
-
-Ein bösartiges oder kompromittiertes Plugin könnte:
-- Deinen Token an einen fremden Server schicken
-- Deine Account-Daten stehlen
-- Im Hintergrund Anfragen machen ohne dein Wissen
-
-TokenGuard macht das sichtbar — und kann es optional auch blockieren.
+### Status Banner
+- At a glance: how many suspicious requests were detected
+- 🛡️ Green = all clear / 🚨 Red = action recommended
 
 ---
 
-**Autor:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+## Why does this matter?
+
+A malicious or compromised plugin could:
+- Send your token to an attacker's server
+- Steal your account data silently
+- Make background requests without your knowledge
+
+TokenGuard makes this visible — and can optionally block it entirely.
+
+---
+
+**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)

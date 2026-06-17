@@ -1,6 +1,6 @@
 # GhostMode — by Cordinsanity
 
-> Unsichtbar schalten, Tipp-Indikator und Lesebestätigungen blockieren — direkt aus dem You Bar
+> Go invisible, block typing indicators and read receipts — toggle right from the You Bar
 
 ```
 https://cordinsanity.github.io/revenge-plugins/GhostMode/index.js
@@ -8,38 +8,38 @@ https://cordinsanity.github.io/revenge-plugins/GhostMode/index.js
 
 ---
 
-## Was macht das Plugin?
+## What does this plugin do?
 
-GhostMode gibt dir einen **👻 Ghost-Button direkt im You Bar** (neben der Glocke unten), mit dem du dich auf Knopfdruck unsichtbar schalten kannst. Andere sehen dich dann als offline, obwohl du aktiv bist.
+GhostMode adds a **👻 ghost button directly in the You Bar** (next to the bell icon at the bottom) so you can go invisible with a single tap. Others will see you as offline even while you're actively using Discord.
 
-Zusätzlich blockiert GhostMode optional den Tipp-Indikator und Lesebestätigungen — niemand sieht mehr dass du online bist oder gerade tippst.
+On top of that, GhostMode optionally blocks the typing indicator and read receipts — nobody can tell you're online or currently writing a message.
 
 ---
 
 ## Features
 
-### Ghost-Toggle im You Bar
-- 👻 / 👤 Button direkt neben der Glocke im You Bar
-- Ein Druck → Status sofort auf **Invisible**
-- Nochmal drücken → zurück zu deinem normalen Status
-- Langer Druck → zeigt aktuellen Ghost-Status als Toast
+### Ghost Toggle in the You Bar
+- 👻 / 👤 button right next to the bell in the You Bar
+- One tap → status immediately set to **Invisible**
+- Tap again → back to your normal status
+- Long press → shows current ghost state as a toast
 
-### Privacy-Funktionen
-- **Tipp-Indikator blockieren** — niemand sieht "tippt..." wenn du im Ghost-Modus bist
-- **Lesebestätigungen blockieren** — Kanäle werden nicht automatisch als gelesen markiert
-- Status bleibt **Invisible** auch wenn du aktiv navigierst
+### Privacy Features
+- **Block typing indicator** — nobody sees "is typing..." while ghost mode is active
+- **Block read receipts** — channels are not automatically marked as read
+- Status stays **Invisible** even while actively navigating
 
-### Einstellungen
-- **Standard-Status nach Ghost-Off** — wähle ob du zu Online / Idle / DND / Invisible zurückkehrst
-- **You Bar Button** — kann deaktiviert werden falls du ihn nicht willst
-- Tipp-Blocker und Read-Receipt-Blocker einzeln ein-/ausschaltbar
-
----
-
-## Wie es funktioniert
-
-GhostMode patcht intern `PresenceActions.updateStatus` um den Status auf `invisible` zu setzen, und blockiert `startTyping` sowie `ack` (Mark-as-Read) Calls wenn Ghost aktiv ist. Beim Entladen des Plugins wird der Status automatisch wiederhergestellt.
+### Settings
+- **Default status after Ghost-Off** — choose whether to return to Online / Idle / DND / Invisible
+- **You Bar button** — can be disabled if you don't want it
+- Typing blocker and read receipt blocker can be toggled individually
 
 ---
 
-**Autor:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+## How it works
+
+GhostMode patches `PresenceActions.updateStatus` internally to set the status to `invisible`, and blocks `startTyping` and `ack` (mark-as-read) calls while ghost is active. When the plugin unloads, the status is automatically restored.
+
+---
+
+**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)

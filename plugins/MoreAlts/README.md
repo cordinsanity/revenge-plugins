@@ -1,6 +1,6 @@
 # MoreAlts — by Cordinsanity
 
-> Sicherer Account-Switcher für Revenge/Vendetta Discord
+> Secure account switcher for Revenge/Vendetta Discord
 
 ```
 https://cordinsanity.github.io/revenge-plugins/MoreAlts/index.js
@@ -8,82 +8,82 @@ https://cordinsanity.github.io/revenge-plugins/MoreAlts/index.js
 
 ---
 
-## Was ist das?
+## What is this?
 
-MoreAlts erlaubt es mehrere Discord-Accounts zu speichern und per Knopfdruck zu wechseln. Das Original von Win8.1VMUser hat dabei alle Tokens im **Klartext** gespeichert und ein simples Bitshift als "Passwort-Hash" verwendet — jeder mit Zugriff auf dein Handy konnte alle Tokens direkt lesen.
+MoreAlts lets you save multiple Discord accounts and switch between them with a single tap. The original by Win8.1VMUser stored all tokens in **plain text** and used a trivial bitshift as a "password hash" — anyone with access to your phone's storage could read every token instantly.
 
-Diese Version baut das komplett neu mit echter Kryptographie.
+This version rebuilds it from scratch with real cryptography.
 
 ---
 
-## Vergleich zum Original
+## Comparison to the original
 
 | | Original MoreAlts | MoreAlts by Cordinsanity |
 |---|---|---|
-| Token-Speicherung | ❌ Klartext | ✅ AES-256-GCM verschlüsselt |
-| Passwort-Hash | ❌ Bitshift (trivial) | ✅ PBKDF2 + SHA-256 + Salt |
-| Verschlüsselung pro Account | ❌ Keine | ✅ HKDF-Ableitung pro Account |
-| PIN-Lock | ❌ Nein | ✅ 4-stellig, PBKDF2-gehasht |
-| Biometrie | ❌ Nein | ✅ Fingerabdruck / Face ID |
-| Screenshot-Schutz | ❌ Nein | ✅ Ja (Android) |
-| Memory Wipe | ❌ Nein | ✅ Token-Buffer wird nach Nutzung genullt |
-| Login-Verlauf | ❌ Nein | ✅ Verschlüsselt, nur mit PIN |
-| Nitro-Badge | ❌ Nein | ✅ Live auf jeder Account-Karte |
-| Request Fingerprint | ❌ Nein | ✅ Zufällige User-Agent / Header |
-| Unbekannte Geräte | ❌ Nein | ✅ Warnung bei neuen Sessions |
+| Token storage | ❌ Plain text | ✅ AES-256-GCM encrypted |
+| Password hashing | ❌ Bitshift (trivial) | ✅ PBKDF2 + SHA-256 + random salt |
+| Per-account encryption | ❌ None | ✅ HKDF key derivation per account |
+| PIN lock | ❌ No | ✅ 4-digit, PBKDF2-hashed |
+| Biometric auth | ❌ No | ✅ Fingerprint / Face ID |
+| Screenshot protection | ❌ No | ✅ Yes (Android) |
+| Memory wipe | ❌ No | ✅ Token buffer zeroed out after use |
+| Login history | ❌ No | ✅ Encrypted, PIN-gated |
+| Nitro badge | ❌ No | ✅ Live badge on every account card |
+| Request fingerprint randomizer | ❌ No | ✅ Randomized User-Agent & headers |
+| Unknown device warning | ❌ No | ✅ Alert on new sessions |
 
 ---
 
 ## Features
 
-### Sicherheit
-- **AES-256-GCM** — Tokens werden niemals im Klartext gespeichert
-- **PBKDF2** Passwort-Hashing mit 100.000 Iterationen und zufälligem Salt
-- **Per-Account-Salt** — jeder Token hat seinen eigenen HKDF-abgeleiteten Schlüssel
-- **Memory Wipe** — entschlüsselter Token-Buffer wird nach Nutzung auf 0 gesetzt
-- **PIN-Lock** — 4-stellige PIN zum Öffnen des Plugins
-- **Panic Wipe** — löscht alle Accounts nach 5 falschen PIN-Versuchen
-- **Biometrie** — Fingerabdruck / Face ID Unterstützung
-- **Screenshot-Schutz** — verhindert Screenshots im Plugin (Android)
-- **Unbekannte Geräte** — Warnung wenn ein neuer Login auf einem Account erkannt wird
-- **Request Fingerprint Randomizer** — zufällige User-Agent und Header beim Login
+### Security
+- **AES-256-GCM** — tokens are never stored in plain text
+- **PBKDF2** password hashing with 100,000 iterations and a random salt
+- **Per-account salt** — every token uses its own HKDF-derived encryption key
+- **Memory wipe** — decrypted token buffer is zeroed out immediately after use
+- **PIN lock** — 4-digit PIN required to open the plugin
+- **Panic wipe** — deletes all accounts after 5 wrong PIN attempts
+- **Biometric auth** — fingerprint / Face ID support
+- **Screenshot protection** — blocks screenshots inside the plugin UI (Android)
+- **Unknown device warning** — alerts when a new session appears on an account
+- **Request fingerprint randomizer** — randomizes User-Agent and headers on login
 
-### Account-Verwaltung
-- Accounts per E-Mail + Passwort oder Token hinzufügen
-- Aktuell eingeloggten Account mit einem Tap speichern
-- Accounts sofort wechseln
-- **Reihenfolge** der Accounts per ▲▼ ändern
-- **Refresh-Button** pro Account — Nitro-Status, Avatar und Name live aktualisieren
-- Accounts entfernen (nur aus Switcher, oder komplett ausloggen)
-- Force-Logout ohne gespeicherte Accounts zu löschen
+### Account Management
+- Add accounts via email & password or token
+- Save your currently logged-in account in one tap
+- Switch accounts instantly
+- **Reorder accounts** with ▲▼ buttons
+- **Refresh button** per account — updates Nitro status, avatar and display name live
+- Remove accounts (switcher only, or full logout)
+- Force logout without deleting saved accounts
 
 ### UI
-- **Nitro-Badge** auf jeder Account-Karte (`✦ Nitro` / `✦ Classic` / `✦ Basic`)
-- Farbiger Rand pro Karte — blau = aktiv, lila = Nitro, grau = normal
-- Avatar-Ring der Account-Typ widerspiegelt, gelb beim Wechsel
-- Kompakte Action-Bar (Refresh / Token kopieren / Entfernen)
+- **Nitro badge** on every account card (`✦ Nitro` / `✦ Classic` / `✦ Basic`)
+- Colored accent border per card — blue = active, purple = Nitro, gray = normal
+- Avatar ring color reflecting account type, yellow while switching
+- Clean action bar (Refresh / Copy Token / Remove) on every card
 
 ### Privacy & Info
-- **Verschlüsselter Login-Verlauf** — jeder Wechsel, Hinzufügen und Entfernen wird protokolliert (PIN-geschützt)
-- **Token Ablauf-Check** — prüft ob alle gespeicherten Tokens noch gültig sind
-- **Clipboard Auto-Clear** — kopierte Tokens werden nach 30 Sekunden aus der Zwischenablage gelöscht
-- **Export / Import** mit optionalem PBKDF2-Passwortschutz
+- **Encrypted login history** — logs every switch, add and remove (PIN-gated)
+- **Token expiry check** — pings the Discord API to verify all saved tokens are still valid
+- **Clipboard auto-clear** — copied tokens are wiped from clipboard after 30 seconds
+- **Export / Import** with optional PBKDF2 password protection
 
-### CLI-Befehle
+### CLI Commands
 ```
-/accswitcher         — Plugin-Übersicht
-/accswitcher add     — Aktuellen Account speichern
-/accswitcher login   — Zu einem gespeicherten Account wechseln
-/accswitcher list    — Alle gespeicherten Accounts auflisten
-/accswitcher remove  — Account entfernen
-/accswitcher token   — Aktuellen Token anzeigen (benötigt Unsafe Features)
+/accswitcher         — Plugin overview
+/accswitcher add     — Save current account
+/accswitcher login   — Switch to a saved account
+/accswitcher list    — List all saved accounts
+/accswitcher remove  — Remove a saved account
+/accswitcher token   — Show current token (requires Unsafe Features)
 ```
 
 ---
 
 ## Credits
 
-- Original MoreAlts Konzept von **Win8.1VMUser**
-- Komplett neu geschrieben von **Cordinsanity**
+- Original MoreAlts concept by **Win8.1VMUser**
+- Completely rewritten and extended by **Cordinsanity**
 
-> ⚠️ Account-Switching verstößt gegen Discords ToS. Auf eigene Gefahr nutzen.
+> ⚠️ Account switching violates Discord's Terms of Service. Use at your own risk.
