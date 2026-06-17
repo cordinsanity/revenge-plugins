@@ -72,10 +72,14 @@ function PinLock({ storage, onSuccess, onCancel, mode = 'verify' }) {
 
   const handleBack = () => setCurrentPin(prev => prev.slice(0, -1));
 
-  // Auto-submit when 4 digits entered
+  // Auto-submit when 4 digits entered — use separate effects to avoid double-fire
   React.useEffect(() => {
-    if (currentPin.length === 4) submit(currentPin);
-  }, [pin, confirmPin]);
+    if (phase === 'enter' && pin.length === 4) submit(pin);
+  }, [pin]);
+
+  React.useEffect(() => {
+    if (phase === 'confirm' && confirmPin.length === 4) submit(confirmPin);
+  }, [confirmPin]);
 
   const submit = async (entered) => {
     if (mode === 'verify') {

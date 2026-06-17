@@ -1,7 +1,7 @@
 import { after, before } from "@vendetta/patcher";
 import { findByProps, findByDisplayName, findByStoreName } from "@vendetta/metro";
 import { findInReactTree } from "@vendetta/utils";
-import { React } from "@vendetta/metro/common";
+import { React, ReactNative } from "@vendetta/metro/common";
 import { storage, useProxy } from "@vendetta/plugin";
 import { showToast } from "@vendetta/ui/toasts";
 import GhostModeSettings from "./Settings.js";
@@ -15,20 +15,17 @@ if (!storage.settings.defaultStatus) storage.settings.defaultStatus = "online";
 if (storage.settings.showInYouBar === undefined) storage.settings.showInYouBar = true;
 
 const PresenceActions = findByProps("updateStatus", "setStatus");
-const TypingActions = findByProps("startTyping", "stopTyping");
-const ChannelActions = findByProps("ack", "batchAck");
-const { TouchableOpacity, View, Text } = findByProps("TouchableOpacity") || {};
+const TypingActions   = findByProps("startTyping", "stopTyping");
+const ChannelActions  = findByProps("ack", "batchAck");
 
 const patches = [];
 
 function setGhostMode(enabled) {
   storage.ghostEnabled = enabled;
   try {
-    if (PresenceActions?.updateStatus) {
-      PresenceActions.updateStatus({ status: enabled ? "invisible" : (storage.settings.defaultStatus || "online") });
-    }
+    PresenceActions?.updateStatus?.({ status: enabled ? "invisible" : (storage.settings.defaultStatus || "online") });
   } catch {}
-  showToast(enabled ? "👻 Ghost Mode AN" : "👤 Ghost Mode AUS", 0);
+  showToast(enabled ? "👻 Ghost Mode ON" : "👤 Ghost Mode OFF", 0);
 }
 
 function GhostButton() {
@@ -36,80 +33,90 @@ function GhostButton() {
   const active = s.ghostEnabled;
 
   return React.createElement(
-    TouchableOpacity,
+    ReactNative.TouchableOpacity,
     {
       onPress: () => setGhostMode(!active),
-      onLongPress: () => showToast(`Ghost: ${active ? "AN" : "AUS"} — Tipps blockiert: ${s.settings.blockTyping ? "ja" : "nein"}`, 0),
-      accessibilityLabel: "Ghost Mode Toggle",
+      onLongPress: () => showToast(`Ghost: ${active ? "ON" : "OFF"} — Typing blocked: ${s.settings.blockTyping ? "yes" : "no"}`, 0),
+      accessibilityLabel: "Ghost Mode",
       style: {
-        width: 44,
-        height: 44,
-        alignItems: "center",
-        justifyContent: "center",
+        width: 44, height: 44,
+        alignItems: "center", justifyContent: "center",
         borderRadius: 22,
-        backgroundColor: active ? "rgba(114,137,218,0.25)" : "transparent",
-        marginRight: 4,
+        backgroundColor: active ? "rgba(114,137,218,0.3)" : "transparent",
+        marginHorizontal: 2,
       }
     },
-    React.createElement(
-      Text,
-      { style: { fontSize: 20, lineHeight: 24 } },
-      active ? "👻" : "👤"
-    )
+    React.createElement(ReactNative.Text, { style: { fontSize: 20 } }, active ? "👻" : "👤")
   );
 }
 
 function tryPatchYouBar() {
-  // Try common component names for the bottom user panel
-  const candidates = [
-    () => findByDisplayName("YouBar", false),
-    () => findByDisplayName("UserPanel", false),
-    () => findByDisplayName("ConnectedUserPanel", false),
-    () => findByDisplayName("YouSection", false),
-    () => findByProps("useShouldShowBell"),
-    () => findByProps("renderBell", "renderAvatar"),
+  // Try every common name Discord has used for the bottom user panel
+  const names = [
+    "YouBar", "UserPanel", "ConnectedUserPanel", "YouSection",
+    "AccountPanelInner", "AccountPanel", "ConnectedAccountPanel",
   ];
 
-  for (const getter of candidates) {
+  for (const name of names) {
     try {
-      const mod = getter();
-      if (!mod) continue;
+      const mod = findByDisplayName(name, false);
+      if (!mod?.default || typeof mod.default !== "function") continue;
 
-      // The component might be mod itself or mod.default
-      const target = mod;
-      if (!target || typeof target.default !== "function") continue;
-
-      const patch = after("default", target, ([props], res) => {
+      patches.push(after("default", mod, ([props], res) => {
         if (!storage.settings?.showInYouBar || !res) return res;
         try {
-          // Look for a row/container that holds the bell notification button
-          const bellContainer = findInReactTree(res, node =>
-            node?.props?.children &&
-            Array.isArray(node.props.children) &&
-            node.props.children.some?.(c =>
+          // Find any container that holds the notification bell button
+          const bellContainer = findInReactTree(res, node => {
+            if (!node?.props?.children || !Array.isArray(node.props.children)) return false;
+            return node.props.children.some(c =>
               c?.props?.accessibilityLabel?.toLowerCase().includes("notif") ||
               c?.props?.accessibilityLabel?.toLowerCase().includes("bell") ||
-              c?.type?.displayName?.toLowerCase().includes("bell") ||
-              c?.type?.displayName?.toLowerCase().includes("notif")
-            )
-          );
+              c?.type?.displayName?.toLowerCase?.().includes("bell") ||
+              c?.type?.displayName?.toLowerCase?.().includes("notif")
+            );
+          });
 
           if (bellContainer) {
             const kids = Array.isArray(bellContainer.props.children)
               ? [...bellContainer.props.children]
-              : [bellContainer.props.children];
-            // Insert ghost button before the bell
-            kids.unshift(React.createElement(GhostButton, { key: "__ghost_btn__" }));
+              : [bellContainer.props.children].filter(Boolean);
+            kids.unshift(React.createElement(GhostButton, { key: "__ghost__" }));
             bellContainer.props.children = kids;
           }
         } catch {}
         return res;
-      });
+      }));
 
-      patches.push(patch);
-      return true; // stop after first successful patch
+      return true;
     } catch {}
   }
+
+  // Fallback: patch by props signature
+  try {
+    const mod = findByProps("useShouldShowBell");
+    if (mod) {
+      const key = Object.keys(mod).find(k => typeof mod[k] === "function");
+      if (key) {
+        patches.push(after(key, mod, ([props], res) => {
+          if (!storage.settings?.showInYouBar || !res) return res;
+          try {
+            const bellContainer = findInReactTree(res, node =>
+              Array.isArray(node?.props?.children) &&
+              node.props.children.some(c => c?.props?.accessibilityLabel?.toLowerCase().includes("notif"))
+            );
+            if (bellContainer) {
+              const kids = [...(Array.isArray(bellContainer.props.children) ? bellContainer.props.children : [bellContainer.props.children])];
+              kids.unshift(React.createElement(GhostButton, { key: "__ghost__" }));
+              bellContainer.props.children = kids;
+            }
+          } catch {}
+          return res;
+        }));
+        return true;
+      }
+    }
+  } catch {}
+
   return false;
 }
 
@@ -128,26 +135,26 @@ export function onLoad() {
     patches.push(before("ack", ChannelActions, () => {
       if (storage.ghostEnabled && storage.settings?.blockReadReceipts) return [undefined, undefined];
     }));
-    patches.push(before("batchAck", ChannelActions, () => {
-      if (storage.ghostEnabled && storage.settings?.blockReadReceipts) return [undefined];
-    }));
+    if (ChannelActions.batchAck) {
+      patches.push(before("batchAck", ChannelActions, () => {
+        if (storage.ghostEnabled && storage.settings?.blockReadReceipts) return [undefined];
+      }));
+    }
   }
 
-  // Inject into YouBar
   if (storage.settings?.showInYouBar !== false) {
     tryPatchYouBar();
   }
 
-  // If ghost was on before, re-enable it
-  if (storage.ghostEnabled && PresenceActions?.updateStatus) {
-    try { PresenceActions.updateStatus({ status: "invisible" }); } catch {}
+  // Re-apply ghost state from previous session
+  if (storage.ghostEnabled) {
+    try { PresenceActions?.updateStatus?.({ status: "invisible" }); } catch {}
   }
 }
 
 export function onUnload() {
   patches.forEach(p => { try { p(); } catch {} });
-  // Restore visible status when plugin unloads
-  if (storage.ghostEnabled && PresenceActions?.updateStatus) {
-    try { PresenceActions.updateStatus({ status: storage.settings?.defaultStatus || "online" }); } catch {}
+  if (storage.ghostEnabled) {
+    try { PresenceActions?.updateStatus?.({ status: storage.settings?.defaultStatus || "online" }); } catch {}
   }
 }

@@ -525,14 +525,19 @@ export default function AccountsManager(props) {
     return () => { if (storage.settings?.enableScreenshotProtection) disableScreenshotProtection(); };
   }, []);
 
-  // PIN / Biometric gate
-  if (storage.settings?.enablePinLock && !pinUnlocked) {
-    if (storage.settings?.enableBiometric) {
-      // Try biometric first, fallback to PIN
-      authenticateWithBiometric().then(result => {
+  // Biometric — try once on mount, never call in render body
+  const biometricTriedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (storage.settings?.enablePinLock && !pinUnlocked && storage.settings?.enableBiometric && !biometricTriedRef.current) {
+      biometricTriedRef.current = true;
+      authenticateWithBiometric("Unlock Account Switcher").then(result => {
         if (result.success) { setSessionUnlocked(true); setPinUnlocked(true); }
       });
     }
+  }, []);
+
+  // PIN / Biometric gate
+  if (storage.settings?.enablePinLock && !pinUnlocked) {
     return React.createElement(PinLock, {
       storage,
       mode: 'verify',
