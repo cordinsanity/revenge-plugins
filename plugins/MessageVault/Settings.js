@@ -2,7 +2,11 @@ import { React, ReactNative } from "@vendetta/metro/common";
 import { useProxy } from "@vendetta/plugin";
 import { showToast } from "@vendetta/ui/toasts";
 import { showConfirmationAlert } from "@vendetta/ui/alerts";
+import { findByStoreName } from "@vendetta/metro";
 import { decryptText } from "./CryptoUtils.js";
+import { exportChannelChat } from "./ChatExport.js";
+
+const SelectedChannelStore = findByStoreName("SelectedChannelStore");
 
 const { View, Text, Switch, ScrollView, TouchableOpacity, TextInput } = ReactNative;
 
@@ -94,6 +98,14 @@ export default function MessageVaultSettings({ storage }) {
   const deletes = log.filter(l => l.kind === "delete").length;
   const edits = log.filter(l => l.kind === "edit").length;
 
+  const [exportChannelId, setExportChannelId] = React.useState(() => {
+    try { return SelectedChannelStore?.getChannelId?.() || ""; } catch { return ""; }
+  });
+  const [includeMedia, setIncludeMedia] = React.useState(true);
+  const [maxMessages, setMaxMessages] = React.useState("1000");
+  const [exporting, setExporting] = React.useState(false);
+  const [exportStatus, setExportStatus] = React.useState("");
+
   const deleteEntry = (id) => {
     s.log = (s.log || []).filter(e => e.id !== id);
   };
@@ -147,6 +159,53 @@ export default function MessageVaultSettings({ storage }) {
     });
   };
 
+  const enableGuildLogging = () => {
+    showConfirmationAlert({
+      title: "⚠️ Storage warning",
+      content: "Server channels are usually far busier than DMs. Logging their edits/deletions too can fill up your device's internal storage much faster. Consider lowering \"Max log entries\" if you enable this.",
+      confirmText: "I understand, enable",
+      cancelText: "Cancel",
+      onConfirm: () => { s.settings.logGuildMessages = true; },
+    });
+  };
+
+  const runExport = async () => {
+    const channelId = exportChannelId.trim();
+    if (!channelId) { showToast("Enter a channel ID first", 0); return; }
+
+    setExporting(true);
+    setExportStatus("Starting…");
+    try {
+      const result = await exportChannelChat(channelId, {
+        includeMedia,
+        maxMessages: Math.max(1, Math.min(10000, parseInt(maxMessages, 10) || 1000)),
+        onProgress: p => {
+          if (p.phase === "fetching") setExportStatus(`Fetching messages… (${p.count})`);
+          else if (p.phase === "media") setExportStatus(`Downloading media… (${p.count}/${p.total})`);
+          else if (p.phase === "zipping") setExportStatus("Building ZIP…");
+          else if (p.phase === "done") setExportStatus("Done!");
+        },
+      });
+      showToast(`Saved ${result.fileName} to Downloads (${result.messageCount} messages)`, 0);
+    } catch (e) {
+      showToast(`Export failed: ${e?.message || e}`, 0);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const startExport = () => {
+    showConfirmationAlert({
+      title: "⚠️ Export warning",
+      content: includeMedia
+        ? "This downloads the channel's message history plus all images/videos into a ZIP file. Media-heavy or long chats can take a while and use a fair amount of storage and data."
+        : "This downloads the channel's message history into a ZIP file (text only).",
+      confirmText: "Start export",
+      cancelText: "Cancel",
+      onConfirm: runExport,
+    });
+  };
+
   return React.createElement(ScrollView, { style: { flex: 1 } },
 
     React.createElement(View, {
@@ -187,6 +246,13 @@ export default function MessageVaultSettings({ storage }) {
         value: s.settings.logEdits !== false,
         onToggle: v => { s.settings.logEdits = v; },
         accent: "#FAA61A",
+      }),
+      React.createElement(ToggleRow, {
+        label: "Also log server messages",
+        sub: "Off by default — servers are much busier than DMs and can fill up storage faster",
+        value: s.settings.logGuildMessages === true,
+        onToggle: v => { if (v) { enableGuildLogging(); } else { s.settings.logGuildMessages = false; } },
+        accent: "#F04747",
       }),
     ),
 
@@ -238,6 +304,60 @@ export default function MessageVaultSettings({ storage }) {
             },
           })
         ),
+    ),
+
+    React.createElement(Text, { style: SECTION }, "Chat export"),
+    React.createElement(View, { style: CARD },
+      React.createElement(View, { style: { padding: 12 } },
+        React.createElement(Text, { style: { color: "#888", fontSize: 11, marginBottom: 4 } }, "Channel ID"),
+        React.createElement(TextInput, {
+          value: exportChannelId,
+          onChangeText: setExportChannelId,
+          placeholder: "Right-click a chat → Copy Channel ID",
+          placeholderTextColor: "#666",
+          editable: !exporting,
+          style: {
+            color: "#fff", backgroundColor: "rgba(255,255,255,0.07)",
+            borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13, marginBottom: 10,
+          },
+        }),
+        React.createElement(Text, { style: { color: "#888", fontSize: 11, marginBottom: 4 } }, "Max messages"),
+        React.createElement(TextInput, {
+          value: maxMessages,
+          onChangeText: setMaxMessages,
+          keyboardType: "numeric",
+          editable: !exporting,
+          style: {
+            color: "#fff", backgroundColor: "rgba(255,255,255,0.07)",
+            borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13, marginBottom: 10, width: 100,
+          },
+        })
+      ),
+      React.createElement(ToggleRow, {
+        label: "Include images/videos",
+        sub: "Downloads attachments into the ZIP too — bigger file, takes longer",
+        value: includeMedia,
+        onToggle: setIncludeMedia,
+        accent: "#7289DA",
+      }),
+      React.createElement(View, { style: { padding: 12 } },
+        React.createElement(TouchableOpacity, {
+          disabled: exporting,
+          onPress: startExport,
+          style: {
+            backgroundColor: exporting ? "#444" : "#7289DA",
+            borderRadius: 8, paddingVertical: 10, alignItems: "center",
+          },
+        },
+          React.createElement(Text, { style: { color: "#fff", fontWeight: "700", fontSize: 14 } },
+            exporting ? "Exporting…" : "Export chat as ZIP"
+          )
+        ),
+        exportStatus && React.createElement(Text, { style: { color: "#888", fontSize: 12, marginTop: 6, textAlign: "center" } }, exportStatus),
+        React.createElement(Text, { style: { color: "#555", fontSize: 11, marginTop: 6 } },
+          "Saves messages.txt, messages.json and (optionally) media as a .zip file to your device's Downloads folder. Useful for keeping evidence/backups outside the app."
+        )
+      )
     ),
 
     React.createElement(View, {

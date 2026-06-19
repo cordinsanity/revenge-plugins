@@ -16,9 +16,19 @@ if (storage.settings.addToSidebar === undefined) storage.settings.addToSidebar =
 if (storage.settings.encryptLog === undefined) storage.settings.encryptLog = true;
 if (storage.settings.enableRemoteSync === undefined) storage.settings.enableRemoteSync = false;
 if (storage.settings.remoteServerUrl === undefined) storage.settings.remoteServerUrl = "";
+if (storage.settings.logGuildMessages === undefined) storage.settings.logGuildMessages = false;
 
 const FluxDispatcher = findByProps("dispatch", "subscribe");
 const MessageStore = findByStoreName("MessageStore");
+const ChannelStore = findByStoreName("ChannelStore");
+
+function isGuildChannel(channelId) {
+  try {
+    return Boolean(ChannelStore?.getChannel?.(channelId)?.guild_id);
+  } catch {
+    return false;
+  }
+}
 
 let unpatch = null;
 let unpatchSidebar = null;
@@ -41,7 +51,7 @@ async function syncToRemote(record) {
   } catch {}
 }
 
-async function addLog(entry) {
+async function addLogInternal(entry) {
   const record = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     time: Date.now(),
@@ -67,6 +77,15 @@ async function addLog(entry) {
   syncToRemote(record);
 }
 
+// Encryption makes each call await across multiple microtasks, so concurrent
+// calls (e.g. a bulk delete loop) must be serialized — otherwise two calls can
+// both read storage.log before either writes back, and one entry gets lost.
+let writeQueue = Promise.resolve();
+function addLog(entry) {
+  writeQueue = writeQueue.then(() => addLogInternal(entry)).catch(() => {});
+  return writeQueue;
+}
+
 function snapshotAuthor(msg) {
   return {
     authorId: msg?.author?.id,
@@ -86,6 +105,8 @@ export function onLoad() {
 
     try {
       if (action.type === "MESSAGE_DELETE" && storage.settings.logDeletes) {
+        if (isGuildChannel(action.channelId) && !storage.settings.logGuildMessages) return;
+
         const original = MessageStore.getMessage(action.channelId, action.id);
         if (!original) return;
 
@@ -100,13 +121,20 @@ export function onLoad() {
 
         if (storage.settings.keepDeletedVisible) {
           action.type = "MESSAGE_UPDATE";
-          action.message = {
-            ...original,
-            content: `🗑️ ~~${original.content || "*(no text content)*"}~~`,
-            __vaultDeleted: true,
-          };
+          // Preserve the original Message record's prototype (methods Discord's
+          // renderer calls on it) instead of spreading into a plain object.
+          action.message = Object.assign(
+            Object.create(Object.getPrototypeOf(original)),
+            original,
+            {
+              content: `🗑️ ~~${original.content || "*(no text content)*"}~~`,
+              __vaultDeleted: true,
+            },
+          );
         }
       } else if (action.type === "MESSAGE_DELETE_BULK" && storage.settings.logDeletes) {
+        if (isGuildChannel(action.channelId) && !storage.settings.logGuildMessages) return;
+
         for (const id of action.ids || []) {
           const original = MessageStore.getMessage(action.channelId, id);
           if (!original) continue;
@@ -122,6 +150,7 @@ export function onLoad() {
       } else if (action.type === "MESSAGE_UPDATE" && storage.settings.logEdits && !action.message?.__vaultDeleted) {
         const incoming = action.message;
         if (!incoming?.id || incoming.content === undefined) return;
+        if (isGuildChannel(incoming.channel_id) && !storage.settings.logGuildMessages) return;
 
         const previous = MessageStore.getMessage(incoming.channel_id, incoming.id);
         if (previous && previous.content !== incoming.content) {
