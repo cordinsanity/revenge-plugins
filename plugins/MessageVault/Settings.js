@@ -2,8 +2,9 @@ import { React, ReactNative } from "@vendetta/metro/common";
 import { useProxy } from "@vendetta/plugin";
 import { showToast } from "@vendetta/ui/toasts";
 import { showConfirmationAlert } from "@vendetta/ui/alerts";
+import { decryptText } from "./CryptoUtils.js";
 
-const { View, Text, Switch, ScrollView, TouchableOpacity } = ReactNative;
+const { View, Text, Switch, ScrollView, TouchableOpacity, TextInput } = ReactNative;
 
 const ROW = {
   flexDirection: "row", alignItems: "center", justifyContent: "space-between",
@@ -34,7 +35,26 @@ function ToggleRow({ label, sub, value, onToggle, accent }) {
   );
 }
 
-function LogEntry({ entry, onDelete }) {
+function DecryptedText({ value, encKey, style }) {
+  const [text, setText] = React.useState(value);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    if (typeof value === "string" && value.startsWith("enc:")) {
+      setText("Entschlüsseln…");
+      decryptText(value, encKey).then(plain => {
+        if (!cancelled) setText(plain);
+      });
+    } else {
+      setText(value);
+    }
+    return () => { cancelled = true; };
+  }, [value, encKey]);
+
+  return React.createElement(Text, { style }, text);
+}
+
+function LogEntry({ entry, onDelete, encKey }) {
   const isDelete = entry.kind === "delete";
   return React.createElement(View, {
     style: {
@@ -53,12 +73,12 @@ function LogEntry({ entry, onDelete }) {
       )
     ),
     isDelete
-      ? React.createElement(Text, { style: { color: "#ccc", fontSize: 12, marginTop: 4 } }, entry.content || "*(no text content)*")
+      ? React.createElement(DecryptedText, { value: entry.content || "*(no text content)*", encKey, style: { color: "#ccc", fontSize: 12, marginTop: 4 } })
       : React.createElement(View, { style: { marginTop: 4 } },
           React.createElement(Text, { style: { color: "#888", fontSize: 11 } }, "before:"),
-          React.createElement(Text, { style: { color: "#ccc", fontSize: 12, marginBottom: 4 } }, entry.before || "*(empty)*"),
+          React.createElement(DecryptedText, { value: entry.before || "*(empty)*", encKey, style: { color: "#ccc", fontSize: 12, marginBottom: 4 } }),
           React.createElement(Text, { style: { color: "#888", fontSize: 11 } }, "after:"),
-          React.createElement(Text, { style: { color: "#ccc", fontSize: 12 } }, entry.after || "*(empty)*")
+          React.createElement(DecryptedText, { value: entry.after || "*(empty)*", encKey, style: { color: "#ccc", fontSize: 12 } })
         ),
     entry.attachments?.length > 0 &&
       React.createElement(Text, { style: { color: "#555", fontSize: 10, marginTop: 4 } }, `${entry.attachments.length} attachment(s)`),
@@ -85,6 +105,45 @@ export default function MessageVaultSettings({ storage }) {
       confirmText: "Clear all",
       cancelText: "Cancel",
       onConfirm: () => { s.log = []; showToast("MessageVault log cleared", 0); },
+    });
+  };
+
+  const disableEncryption = () => {
+    showConfirmationAlert({
+      title: "⚠️ Warning (1/3)",
+      content: "Turning off encryption means new deleted/edited message content gets saved as PLAIN TEXT in this plugin's local storage. Anyone with file access to your device could read it.",
+      confirmText: "Continue",
+      cancelText: "Keep encryption on",
+      onConfirm: () => {
+        showConfirmationAlert({
+          title: "⚠️ Warning (2/3)",
+          content: "This is especially sensitive for private (DM) conversations. Already-encrypted entries stay encrypted, but anything logged after this point will not be protected.",
+          confirmText: "Continue",
+          cancelText: "Keep encryption on",
+          onConfirm: () => {
+            showConfirmationAlert({
+              title: "⚠️ Warning (3/3) — Final confirmation",
+              content: "Are you absolutely sure you want to disable encryption for the message log?",
+              confirmText: "Yes, disable encryption",
+              cancelText: "Keep encryption on",
+              onConfirm: () => {
+                s.settings.encryptLog = false;
+                showToast("Encryption disabled for new log entries", 0);
+              },
+            });
+          },
+        });
+      },
+    });
+  };
+
+  const enableRemoteSync = () => {
+    showConfirmationAlert({
+      title: "⚠️ Remote backup warning",
+      content: "Every logged entry will be sent to the server URL below. Only use a server you fully control and trust — it will receive private message content. Sending a lot of data can overload small or free servers, so use this carefully.",
+      confirmText: "I understand, enable",
+      cancelText: "Cancel",
+      onConfirm: () => { s.settings.enableRemoteSync = true; },
     });
   };
 
@@ -145,6 +204,42 @@ export default function MessageVaultSettings({ storage }) {
       }),
     ),
 
+    React.createElement(Text, { style: SECTION }, "Security"),
+    React.createElement(View, { style: CARD },
+      React.createElement(ToggleRow, {
+        label: "Encrypt stored log (AES-256)",
+        sub: "On by default — encrypts deleted/edited content at rest, especially important for DMs",
+        value: s.settings.encryptLog !== false,
+        onToggle: v => { if (v) { s.settings.encryptLog = true; } else { disableEncryption(); } },
+        accent: "#43B581",
+      }),
+    ),
+
+    React.createElement(Text, { style: SECTION }, "Remote backup (optional)"),
+    React.createElement(View, { style: CARD },
+      React.createElement(ToggleRow, {
+        label: "Enable remote server backup",
+        sub: "Off by default — sends each log entry to a server you control. Can overload small servers, use with caution",
+        value: s.settings.enableRemoteSync === true,
+        onToggle: v => { if (v) { enableRemoteSync(); } else { s.settings.enableRemoteSync = false; } },
+        accent: "#F04747",
+      }),
+      s.settings.enableRemoteSync &&
+        React.createElement(View, { style: { padding: 12 } },
+          React.createElement(Text, { style: { color: "#888", fontSize: 11, marginBottom: 4 } }, "Server URL"),
+          React.createElement(TextInput, {
+            value: s.settings.remoteServerUrl || "",
+            onChangeText: v => { s.settings.remoteServerUrl = v; },
+            placeholder: "https://your-own-server.example/log",
+            placeholderTextColor: "#666",
+            style: {
+              color: "#fff", backgroundColor: "rgba(255,255,255,0.07)",
+              borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13,
+            },
+          })
+        ),
+    ),
+
     React.createElement(View, {
       style: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingTop: 20, paddingBottom: 6 }
     },
@@ -157,7 +252,7 @@ export default function MessageVaultSettings({ storage }) {
     log.length === 0
       ? React.createElement(Text, { style: { color: "#444", textAlign: "center", padding: 28 } }, "Nothing logged yet")
       : log.slice(0, 100).map(entry =>
-          React.createElement(LogEntry, { key: entry.id, entry, onDelete: deleteEntry })
+          React.createElement(LogEntry, { key: entry.id, entry, onDelete: deleteEntry, encKey: s.settings.logEncryptionKey })
         ),
 
     React.createElement(View, { style: { height: 40 } })

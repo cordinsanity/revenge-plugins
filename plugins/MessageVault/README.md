@@ -20,8 +20,19 @@ https://cordinsanity.github.io/revenge-plugins/MessageVault/
 - Works in DMs and servers alike
 
 ### Local-only storage
-- Everything is saved in this plugin's own storage file (the same JSON-backed storage every plugin in this repo uses) — nothing is sent anywhere
+- Everything is saved in this plugin's own storage file (the same JSON-backed storage every plugin in this repo uses) — nothing is sent anywhere by default
 - Log persists across app restarts
+
+### Encryption (on by default)
+- Logged message content (deleted/edited text) is encrypted at rest with **AES-256-GCM** using a key generated on-device and stored in the plugin's own storage
+- Protects your DM/private chat history from anyone who pulls the raw plugin storage off your device
+- Can be turned off in Settings → Security, but doing so requires confirming **3 separate warning dialogs** since it makes future log entries plain text
+- Entries already encrypted stay encrypted even if you later disable the setting
+
+### Remote backup (optional, off by default)
+- Settings → Remote backup lets you point the plugin at a server URL of your choosing; every new log entry is POSTed there as JSON in addition to local storage
+- Off by default, and enabling it requires confirming a warning: only use a server you control and trust, since it receives private message content, and sending a lot of data can overload small/free servers
+- Local storage keeps working exactly the same whether or not remote backup is enabled
 
 ### Settings
 - Toggle delete logging, edit logging and the visible strike-through independently
