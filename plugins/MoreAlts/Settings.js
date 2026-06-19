@@ -12,7 +12,7 @@ import { PinLock, isSessionUnlocked, setSessionUnlocked } from "./PinLock.js";
 import {
   exportAccounts, importAccounts, setExportPassword,
   removeExportPassword, addAccountWithToken, addAccountWithCredentials,
-  forceLogout, refreshAccountStatus
+  loginWithToken, forceLogout, refreshAccountStatus
 } from "./AccountActions.js";
 import {
   generateEncryptionKey, encryptToken, decryptToken,
@@ -147,6 +147,8 @@ function SettingsPage({ onBack }) {
   useProxy(storage);
   const [newToken, setNewToken] = React.useState("");
   const [isAdding, setIsAdding] = React.useState(false);
+  const [loginToken, setLoginToken] = React.useState("");
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
   const [importText, setImportText] = React.useState("");
   const [showPasswordDialog, setShowPasswordDialog] = React.useState(null);
   const [newPassword, setNewPassword] = React.useState("");
@@ -497,6 +499,22 @@ function SettingsPage({ onBack }) {
             disabled: isAdding,
             style: { backgroundColor: isAdding ? '#5c6bc0' : '#7289da', padding: 12, borderRadius: 8, alignItems: 'center', opacity: isAdding ? 0.6 : 1 }
           }, React.createElement(ReactNative.Text, { style: { color: 'white', fontSize: 16, fontWeight: 'bold' } }, isAdding ? "Adding..." : (newToken.trim() ? "Add Account" : "Add Current Account"))),
+
+          React.createElement(ReactNative.Text, { key: "tlt", style: { color: '#b9bbbe', fontSize: 14, fontWeight: 'bold', marginTop: 16, marginBottom: 8 } }, "SINGLE TOKEN LOGIN"),
+          React.createElement(ReactNative.Text, { key: "tls", style: { color: '#72767d', fontSize: 12, marginBottom: 8 } }, "Paste a token to switch into that account immediately — without saving it."),
+          React.createElement(ReactNative.TextInput, {
+            key: "lti",
+            placeholder: "Paste token to login...",
+            placeholderTextColor: '#72767d', value: loginToken, onChangeText: setLoginToken,
+            secureTextEntry: true,
+            style: { backgroundColor: '#40444b', color: 'white', padding: 12, borderRadius: 8, marginBottom: 8, fontSize: 14 }
+          }),
+          React.createElement(ReactNative.TouchableOpacity, {
+            key: "login-btn",
+            onPress: () => loginWithToken(storage, loginToken, setLoginToken, setIsLoggingIn),
+            disabled: isLoggingIn || !loginToken.trim(),
+            style: { backgroundColor: isLoggingIn ? '#5c6bc0' : '#43b581', padding: 12, borderRadius: 8, alignItems: 'center', opacity: (isLoggingIn || !loginToken.trim()) ? 0.6 : 1 }
+          }, React.createElement(ReactNative.Text, { style: { color: 'white', fontSize: 16, fontWeight: 'bold' } }, isLoggingIn ? "Logging in..." : "Login with Token")),
         ])
       ])
     ])

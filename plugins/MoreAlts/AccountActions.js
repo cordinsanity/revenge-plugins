@@ -332,6 +332,33 @@ const refreshAccountStatus = async (storage, accountId, decryptFn) => {
   }
 };
 
+const loginWithToken = async (storage, token, setToken, setIsLoggingIn) => {
+  if (!storage.settings.enableUnsafeFeatures) return;
+  const trimmed = token.trim();
+  if (!trimmed) { showToast("Paste a token first", 1); return; }
+  if (!trimmed.startsWith("Bot ") && !trimmed.match(/^[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,}$/)) {
+    showToast("Invalid token format", 1);
+    return;
+  }
+  setIsLoggingIn(true);
+  addLog('info', 'Logging in via pasted token');
+  try {
+    const response = await fetch("https://discord.com/api/v9/users/@me", {
+      headers: { "Authorization": trimmed, "Content-Type": "application/json" }
+    });
+    if (!response.ok) { showToast("Invalid or expired token", 1); setIsLoggingIn(false); return; }
+    const user = await response.json();
+    await findByProps("login", "logout", "switchAccountToken").switchAccountToken(trimmed);
+    await addHistoryEntry({ action: 'switch', username: user.username, accountId: user.id });
+    setToken("");
+    showToast(`Logged in as ${user.username}!`, 0);
+  } catch (e) {
+    addLog('error', 'Token login failed', { error: e.message });
+    showToast("Failed to login with token", 1);
+  }
+  setIsLoggingIn(false);
+};
+
 export {
   exportAccounts,
   importAccounts,
@@ -339,6 +366,7 @@ export {
   removeExportPassword,
   addAccountWithToken,
   addAccountWithCredentials,
+  loginWithToken,
   forceLogout,
   refreshAccountStatus,
 };
