@@ -353,11 +353,13 @@ export const settings = (props) => React.createElement(ProxifierSettings, {
 });
 
 export function onLoad() {
-  installFetch();
-  try { unpatchSidebar = patchSidebar(testProxy); } catch {}
-  patches.push(...tryPatchYouBar(() => {
-    showToast("Open Discord Settings → Proxifier to configure", 0);
-  }));
+  try { installFetch(); } catch (e) { console.error("[Proxifier] installFetch failed:", e); }
+  try { unpatchSidebar = patchSidebar(testProxy); } catch (e) { console.error("[Proxifier] patchSidebar failed:", e); }
+  try {
+    patches.push(...tryPatchYouBar(() => {
+      showToast("Open Discord Settings → Proxifier to configure", 0);
+    }));
+  } catch (e) { console.error("[Proxifier] tryPatchYouBar failed:", e); }
 }
 
 export function onUnload() {

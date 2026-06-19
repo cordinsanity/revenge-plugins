@@ -1,5 +1,5 @@
 import { storage, manifest } from "@vendetta/plugin";
-import { React, NavigationNative } from "@vendetta/metro/common";
+import { React, ReactNative, NavigationNative } from "@vendetta/metro/common";
 import { getAssetIDByName } from "@vendetta/ui/assets";
 import { after } from "@vendetta/patcher";
 import { Forms } from "@vendetta/ui/components";
@@ -124,15 +124,12 @@ export default function patchSidebar(testProxy) {
     icon: getAssetIDByName("ic_globe_24px") || getAssetIDByName("ic_link"),
     title: () => "Proxifier",
     predicate: () => !disabled,
-    page: (props) => {
-      const { default: Page } = require("./Settings.js");
-      return React.createElement(Page, { ...props, storage, testProxy });
-    },
+    page: (props) => React.createElement(ProxifierPage, { ...props, storage, testProxy }),
     trailing: () => {
       // Small status dot next to the sidebar entry
       const active = storage.enabled && storage.proxyUrl;
       return React.createElement(
-        require("@vendetta/metro/common").ReactNative.View,
+        ReactNative.View,
         {
           style: {
             width: 8, height: 8, borderRadius: 4,

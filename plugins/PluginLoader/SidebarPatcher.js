@@ -9,7 +9,7 @@ import { logger } from "@vendetta";
 import PluginLoaderSettings from "./Settings";
 
 const { FormSection, FormRow } = Forms;
-const { TableRowIcon } = findByProps("TableRowIcon");
+const TableRowIcon = findByProps("TableRowIcon")?.TableRowIcon;
 
 const bunny = window.bunny;
 
@@ -21,7 +21,7 @@ const SettingsOverviewScreen = bunny?.metro?.findByNameLazy(
     "SettingsOverviewScreen",
     false,
 );
-const createListModule = bunny.metro.findByPropsLazy("createList");
+const createListModule = bunny?.metro?.findByPropsLazy("createList");
 
 function Section({ tabs }) {
     const navigation = NavigationNative.useNavigation();

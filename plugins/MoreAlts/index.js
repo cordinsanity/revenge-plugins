@@ -111,17 +111,16 @@ function removeAccountFromOrder(accountId) {
 	}
 }
 
-export default {
-	meta: vendetta.plugin,
-	settings: AccountSwitcherSettings,
-	patches: [],
-	
-	onUnload() {
-		this.patches.forEach((up) => up());
-		this.patches = [];
-	},
+const patches = [];
 
-	async onLoad() {
+export const settings = AccountSwitcherSettings;
+
+export function onUnload() {
+	patches.forEach((up) => up());
+	patches.length = 0;
+}
+
+export async function onLoad() {
 		// Ensure per-install AES key exists and all stored tokens are encrypted
 		try {
 			if (!storage.settings.tokenEncryptionKey) {
@@ -140,7 +139,7 @@ export default {
 
 		// Add sidebar patcher
 		const sidebarUnpatch = patchSidebar();
-		this.patches.push(sidebarUnpatch);
+		patches.push(sidebarUnpatch);
 
 		// Context menu patch for copying tokens
 		const optionLabel = "Copy Token";
@@ -187,7 +186,7 @@ export default {
 			}
 		});
 		
-		this.patches.push(contextMenuUnpatch);
+		patches.push(contextMenuUnpatch);
 
 		// Command implementations
 		const commands = {
@@ -643,4 +642,3 @@ export default {
 			console.error("Failed to register commands:", e);
 		}
 	}
-};
