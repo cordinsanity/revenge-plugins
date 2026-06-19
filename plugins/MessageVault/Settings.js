@@ -131,6 +131,20 @@ export default function MessageVaultSettings({ storage }) {
       }),
     ),
 
+    React.createElement(Text, { style: SECTION }, "General"),
+    React.createElement(View, { style: CARD },
+      React.createElement(ToggleRow, {
+        label: "Add \"Message Logger\" to settings sidebar",
+        sub: "Adds a quick-access button below Account Switcher — restart app to apply",
+        value: s.settings.addToSidebar !== false,
+        onToggle: v => {
+          s.settings.addToSidebar = v;
+          showToast("Restart app to apply sidebar changes", 0);
+        },
+        accent: "#43B581",
+      }),
+    ),
+
     React.createElement(View, {
       style: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingTop: 20, paddingBottom: 6 }
     },

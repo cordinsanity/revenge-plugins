@@ -2,6 +2,7 @@ import { storage } from "@vendetta/plugin";
 import { findByProps, findByStoreName } from "@vendetta/metro";
 import { before } from "@vendetta/patcher";
 import MessageVaultSettings from "./Settings.js";
+import patchSidebar from "./SidebarPatcher.js";
 
 // Defaults
 if (!storage.settings) storage.settings = {};
@@ -10,11 +11,13 @@ if (storage.settings.logDeletes === undefined) storage.settings.logDeletes = tru
 if (storage.settings.logEdits === undefined) storage.settings.logEdits = true;
 if (storage.settings.keepDeletedVisible === undefined) storage.settings.keepDeletedVisible = true;
 if (storage.settings.maxEntries === undefined) storage.settings.maxEntries = 500;
+if (storage.settings.addToSidebar === undefined) storage.settings.addToSidebar = true;
 
 const FluxDispatcher = findByProps("dispatch", "subscribe");
 const MessageStore = findByStoreName("MessageStore");
 
 let unpatch = null;
+let unpatchSidebar = null;
 
 function addLog(entry) {
   const log = storage.log || [];
@@ -38,6 +41,8 @@ function snapshotAuthor(msg) {
 export const settings = MessageVaultSettings;
 
 export function onLoad() {
+  unpatchSidebar = patchSidebar();
+
   if (!FluxDispatcher || !MessageStore) return;
 
   unpatch = before("dispatch", FluxDispatcher, ([action]) => {
@@ -101,4 +106,6 @@ export function onLoad() {
 export function onUnload() {
   unpatch?.();
   unpatch = null;
+  unpatchSidebar?.();
+  unpatchSidebar = null;
 }

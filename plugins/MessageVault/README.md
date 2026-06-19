@@ -28,6 +28,11 @@ https://cordinsanity.github.io/revenge-plugins/MessageVault/
 - Delete a single log entry with the ✕ button, or wipe everything with **Clear all**
 - Log is capped (default 500 entries) to keep storage small — oldest entries drop first
 
+### Sidebar shortcut
+- Adds a **Message Logger** button to your Discord settings sidebar, right alongside MoreAlts' **Account Switcher** button
+- Tapping it opens the same log/settings screen described above — no need to dig through Plugins → MessageVault
+- Can be disabled via the "Add Message Logger to settings sidebar" toggle (restart the app to apply)
+
 ---
 
 ## Notes
