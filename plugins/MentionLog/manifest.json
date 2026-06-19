@@ -1,0 +1,7 @@
+{
+  "name": "MentionLog — by woodbloom",
+  "description": "Locally records every message that mentions you, including the channel and author — so a mention you missed (or that got deleted) is never lost.",
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
+  "main": "./index.js",
+  "vendetta": { "icon": "ic_message_24px" }
+}

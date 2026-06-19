@@ -1,0 +1,7 @@
+{
+  "name": "FriendWatch — by woodbloom",
+  "description": "Locally logs every friend add & remove with a timestamp, so you can see exactly who unfriended you — something Discord never tells you.",
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
+  "main": "./index.js",
+  "vendetta": { "icon": "ic_friend_request_24px" }
+}

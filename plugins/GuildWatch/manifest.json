@@ -1,0 +1,7 @@
+{
+  "name": "GuildWatch — by woodbloom",
+  "description": "Locally logs every server you join or leave, and warns when a server suddenly renames or re-icons itself — a common sign of a scam takeover.",
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
+  "main": "./index.js",
+  "vendetta": { "icon": "ic_servers_24px" }
+}
