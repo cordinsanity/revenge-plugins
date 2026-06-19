@@ -1,9 +1,9 @@
-# TokenGuard — by Cordinsanity
+# TokenGuard — by woodbloom
 
 Monitors all network requests and alerts you when your Discord token is sent to an unknown URL.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/TokenGuard/
+https://woodbloom.github.io/revenge-plugins/TokenGuard/
 ```
 
 ---
@@ -44,4 +44,4 @@ Every Revenge/Vendetta plugin has full access to `fetch` — which means any plu
 
 ---
 
-**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+**Author:** woodbloom — [github.com/woodbloom](https://github.com/woodbloom)

@@ -1,9 +1,9 @@
-# Proxifier — by Cordinsanity
+# Proxifier — by woodbloom
 
 Route Discord API requests through a custom proxy. Protects your real IP and helps bypass network restrictions.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/Proxifier/
+https://woodbloom.github.io/revenge-plugins/Proxifier/
 ```
 
 ---
@@ -53,6 +53,6 @@ Or use any HTTP reverse proxy (nginx, Caddy, etc.) pointing to `https://discord.
 
 ---
 
-**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+**Author:** woodbloom — [github.com/woodbloom](https://github.com/woodbloom)
 
 > ⚠️ Using proxies may violate Discord's ToS. Use at your own risk.

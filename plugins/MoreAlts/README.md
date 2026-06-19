@@ -1,9 +1,9 @@
-# MoreAlts — by Cordinsanity
+# MoreAlts — by woodbloom
 
 Secure multi-account switcher for Revenge/Vendetta Discord.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/MoreAlts/
+https://woodbloom.github.io/revenge-plugins/MoreAlts/
 ```
 
 ---
@@ -49,7 +49,7 @@ The original MoreAlts stored tokens in plain text — anyone with physical acces
 
 ### Comparison
 
-| | Original MoreAlts | MoreAlts by Cordinsanity |
+| | Original MoreAlts | MoreAlts by woodbloom |
 |---|---|---|
 | Token storage | ❌ Plain text | ✅ AES-256-GCM encrypted |
 | Password hashing | ❌ Trivial | ✅ PBKDF2 + SHA-256 + salt |
@@ -73,6 +73,6 @@ The original MoreAlts stored tokens in plain text — anyone with physical acces
 
 ---
 
-**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+**Author:** woodbloom — [github.com/woodbloom](https://github.com/woodbloom)
 
 > ⚠️ Account switching violates Discord's ToS. Use at your own risk.

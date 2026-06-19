@@ -1,7 +1,7 @@
 {
-  "name": "GhostMode — by Cordinsanity",
+  "name": "GhostMode — by woodbloom",
   "description": "Appear invisible, block typing indicators & read receipts. Ghost toggle lives right in the You Bar next to the bell.",
-  "authors": [{ "name": "Cordinsanity", "id": "793935599702507542" }],
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
   "main": "./index.js",
   "vendetta": { "icon": "ic_eye_24px" }
 }

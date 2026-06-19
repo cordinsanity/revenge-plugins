@@ -1,9 +1,9 @@
-# MessageVault — by Cordinsanity
+# MessageVault — by woodbloom
 
 MessageVault is a local message logger — it logs deleted & edited messages on-device. Deleted messages stay visible (struck through), every edit keeps a before/after copy, and the whole log lives in this plugin's own storage on your device.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/MessageVault/
+https://woodbloom.github.io/revenge-plugins/MessageVault/
 ```
 
 ---
@@ -69,4 +69,4 @@ https://cordinsanity.github.io/revenge-plugins/MessageVault/
 
 ---
 
-**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+**Author:** woodbloom — [github.com/woodbloom](https://github.com/woodbloom)

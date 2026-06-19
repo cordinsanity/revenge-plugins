@@ -1,5 +1,5 @@
 {
-	"name": "cordinsanity-plugins",
+	"name": "woodbloom-plugins",
 	"private": true,
 	"scripts": {
 		"build": "node build.mjs"

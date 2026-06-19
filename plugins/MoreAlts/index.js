@@ -25,7 +25,7 @@ export const EMBED_COLOR = () =>
 
 const authorMods = {
 	author: {
-		username: "MoreAlts by Cordinsanity",
+		username: "MoreAlts by woodbloom",
 		avatar: "command",
 		avatarURL: common.AVATARS?.command || "https://cdn.discordapp.com/embed/avatars/0.png",
 	},

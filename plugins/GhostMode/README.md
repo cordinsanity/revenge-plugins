@@ -1,9 +1,9 @@
-# GhostMode — by Cordinsanity
+# GhostMode — by woodbloom
 
 Go invisible, block typing indicators and read receipts — with a single tap right in the You Bar.
 
 ```
-https://cordinsanity.github.io/revenge-plugins/GhostMode/
+https://woodbloom.github.io/revenge-plugins/GhostMode/
 ```
 
 ---
@@ -28,4 +28,4 @@ https://cordinsanity.github.io/revenge-plugins/GhostMode/
 
 ---
 
-**Author:** Cordinsanity — [github.com/cordinsanity](https://github.com/cordinsanity)
+**Author:** woodbloom — [github.com/woodbloom](https://github.com/woodbloom)

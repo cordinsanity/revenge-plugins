@@ -1,7 +1,7 @@
 {
-  "name": "MessageVault — by Cordinsanity",
+  "name": "MessageVault — by woodbloom",
   "description": "A local message logger — edits & deletions are saved to the plugin storage. Deleted messages stay visible (struck through), and you can view, delete single log entries or wipe the whole log in settings.",
-  "authors": [{ "name": "Cordinsanity", "id": "793935599702507542" }],
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
   "main": "./index.js",
   "vendetta": { "icon": "ic_history_24px" }
 }
