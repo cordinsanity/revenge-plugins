@@ -1,0 +1,7 @@
+{
+  "name": "RPCGuard — by woodbloom",
+  "description": "Stops Discord from broadcasting what you're playing/listening to (Rich Presence / game activity) to everyone who can see your profile.",
+  "authors": [{ "name": "woodbloom", "id": "793935599702507542" }],
+  "main": "./index.js",
+  "vendetta": { "icon": "ic_privacy_24px" }
+}

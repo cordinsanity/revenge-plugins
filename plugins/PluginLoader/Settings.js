@@ -28,6 +28,10 @@ const CATALOG = [
   { key: "TokenGuard", emoji: "🛡️", title: "TokenGuard", desc: "Watches network requests and warns if your token is sent somewhere unknown." },
   { key: "Proxifier", emoji: "🔀", title: "Proxifier", desc: "Route Discord through your own proxy — hide your IP, bypass blocks." },
   { key: "MessageVault", emoji: "🗑️", title: "MessageVault", desc: "Local message logger — deleted messages stay visible, edits saved before/after." },
+  { key: "NoTrack", emoji: "🚫", title: "NoTrack", desc: "Blocks Discord's telemetry, crash reporting & analytics requests before they leave your device." },
+  { key: "StatusLock", emoji: "🔒", title: "StatusLock", desc: "Pins your online status so the app or other plugins can't quietly change it." },
+  { key: "RPCGuard", emoji: "🎮", title: "RPCGuard", desc: "Stops Discord from broadcasting what you're playing/listening to." },
+  { key: "QuickCopy", emoji: "📋", title: "QuickCopy", desc: "Slash commands to instantly copy user IDs, avatar URLs & server info." },
 ].map(p => ({ ...p, url: `${BASE_URL}/${p.key}/` }));
 
 function PluginRow({ entry, busy, onInstall, onToggle, onReinstall }) {
