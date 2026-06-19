@@ -13,7 +13,7 @@ Built with security at the core — encrypted storage, network monitoring and fu
 | [GhostMode](plugins/GhostMode/README.md) | Go invisible & block typing indicators — toggle right in the You Bar | `https://cordinsanity.github.io/revenge-plugins/GhostMode/` |
 | [TokenGuard](plugins/TokenGuard/README.md) | Monitors network requests and alerts when your token is sent to an unknown URL | `https://cordinsanity.github.io/revenge-plugins/TokenGuard/` |
 | [Proxifier](plugins/Proxifier/README.md) | Route Discord through a custom proxy — hides your real IP and bypasses network blocks | `https://cordinsanity.github.io/revenge-plugins/Proxifier/` |
-| [MessageVault](plugins/MessageVault/README.md) | Logs deleted & edited messages locally — deleted messages stay visible, struck through | `https://cordinsanity.github.io/revenge-plugins/MessageVault/` |
+| [MessageVault](plugins/MessageVault/README.md) | A local message logger — deleted messages stay visible (struck through), edits are saved before/after | `https://cordinsanity.github.io/revenge-plugins/MessageVault/` |
 
 ---
 

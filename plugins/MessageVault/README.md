@@ -1,6 +1,6 @@
 # MessageVault — by Cordinsanity
 
-Logs deleted & edited messages locally — deleted messages stay visible (struck through), every edit keeps a before/after copy, and the whole log lives in this plugin's own storage on your device.
+MessageVault is a local message logger — it logs deleted & edited messages on-device. Deleted messages stay visible (struck through), every edit keeps a before/after copy, and the whole log lives in this plugin's own storage on your device.
 
 ```
 https://cordinsanity.github.io/revenge-plugins/MessageVault/
