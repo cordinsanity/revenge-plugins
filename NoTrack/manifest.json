@@ -1,0 +1,1 @@
+{"name":"NoTrack — by woodbloom","description":"Blocks Discord's telemetry, analytics & tracking-pixel requests before they leave your device. Live counter & whitelist in settings.","authors":[{"name":"woodbloom","id":"793935599702507542"}],"main":"index.js","vendetta":{"icon":"ic_privacy_24px"},"hash":"6eef1f8efc2b70330cb60278e1a08d0c8235fa5276208adf6dcc8bf33a840e3c"}

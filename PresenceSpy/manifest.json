@@ -1,0 +1,1 @@
+{"name":"PresenceSpy — by woodbloom","description":"Track specific users and get a toast + local log entry the moment they come online, go offline, or change status.","authors":[{"name":"woodbloom","id":"793935599702507542"}],"main":"index.js","vendetta":{"icon":"ic_status_online_24px"},"hash":"b45f3820a9327eab563bef8666c13cd9124d7eb34e0c30f7c495b28e9dfda6df"}

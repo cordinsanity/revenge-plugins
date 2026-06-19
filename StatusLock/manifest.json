@@ -1,0 +1,1 @@
+{"name":"StatusLock — by woodbloom","description":"Pins your online status to a chosen value so the app, idle-timeout or other plugins can't quietly change it on you.","authors":[{"name":"woodbloom","id":"793935599702507542"}],"main":"index.js","vendetta":{"icon":"ic_dot_24px"},"hash":"cbec94af9d1045e804a624dbd2cb954e0745331cbd04c7820c19e0fcb75b15d1"}
